@@ -1,0 +1,164 @@
+@page "/"
+@using Microsoft.JSInterop
+@using MonitorWin11.Host
+@using MonitorWin11.Models
+@using MonitorWin11.Services
+@using MonitorWin11.Ui.Formatting
+@implements IDisposable
+@inject MonitorManager MonitorManager
+@inject SystemSpecs SystemSpecs
+@inject AppSettings AppSettings
+@inject IJSRuntime JsRuntime
+
+<main>
+    <button @onclick="ChangeTheme" id="btn-change-theme"></button>
+    <div class="flex-h">
+        <div class="flex-v">
+            <div class="card col-1-card">
+                <h2>Specs</h2>
+                <p class="small-text" id="spec-os-display">Sistema Operacional: @SystemSpecs.OsName</p>
+                <p class="small-text" id="spec-cpu-display">CPU: @SystemSpecs.Cpu</p>
+                <p class="small-text" id="spec-gpu-display">GPU: @SystemSpecs.Gpu</p>
+                <p class="small-text" id="spec-total-storage-display">Armazenamento total: @(SystemSpecs.DiskTotalGb+"GB")</p>
+                <p class="small-text" id="spec-total-ram-display">RAM total: @(SystemSpecs.RamTotalGb+"GB")</p>
+            </div>
+            <div class="card col-1-card">
+                <h2>Armazenamento</h2>
+                <!--div class="chart" id="storage-pie-chart"></div-->
+                <!-- progress value="@MonitorManager.Stats.DiskUsedPercent" max="100" class="chart" id="storage-usage-progress-bar"></progress-->
+                <div id="storage-pie-chart"></div>
+                <div class="flex-h">
+                    <p class="small-text">Em uso: </p>
+                    <p class="small-text @ColorManager.CssClassFromUsageLevel(MonitorManager.Stats.DiskUsedPercent)" id="storage-used-display">@SystemStatsFormatter.FormatDisk(MonitorManager.Stats.DiskUsedMb) | @MonitorManager.Stats.DiskUsedPercent% (@UsageLevelFormatter.labelFromUsageLevel(MonitorManager.Stats.DiskUsedPercent))</p>
+                </div>
+                <div class="flex-h">
+                    <p class="small-text">Disponível: </p>
+                    <p class="small-text" id="storage-free-display">@SystemStatsFormatter.FormatDisk(MonitorManager.Stats.DiskFreeMb)</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex-v col-2">
+            <div class="card col-2-card">
+                <h2>CPU</h2>
+                <div class="bar-chart-bg"><div class="chart bar-chart-fill" id="cpu-load-chart-fill"></div></div>
+                <p id="cpu-load-percent-display" class="@ColorManager.CssClassFromUsageLevel(MonitorManager.Stats.CpuLoadPercent)">@MonitorManager.Stats.CpuLoadPercent% | @UsageLevelFormatter.labelFromUsageLevel(MonitorManager.Stats.CpuLoadPercent)</p>
+            </div>
+            <div class="card col-2-card">
+                <h2>RAM</h2>
+                <div class="bar-chart-bg"><div class="chart bar-chart-fill" id="ram-usage-chart-fill"></div></div>
+                <div class="flex-h">
+                    <p class="small-text">Em uso: </p>
+                    <p id="ram-used-display" class="small-text @ColorManager.CssClassFromUsageLevel(MonitorManager.Stats.RamUsedPercent)">@SystemStatsFormatter.FormatMemory(MonitorManager.Stats.RamUsedMb) | @MonitorManager.Stats.RamUsedPercent% (@UsageLevelFormatter.labelFromUsageLevel(MonitorManager.Stats.RamUsedPercent))</p>
+                </div>
+                <div class="flex-h">
+                    <p class="small-text">Disponível: </p>
+                    <p id="ram-free-display" class="small-text">@SystemStatsFormatter.FormatMemory(MonitorManager.Stats.RamFreeMb)</p>
+                </div>
+            </div>
+            <div class="card col-2-card">
+                <h2>Rede</h2>
+                <div class="flex-h">
+                    <p class="small-text">Upload: </p>
+                    <p id="upspeed-display" class="small-text color-neutral">@(MonitorManager.Stats.UploadKbps+"Kbps")</p>
+                </div>
+                <div class="flex-h">
+                    <p class="small-text">Download: </p>
+                    <p id="downspeed-display" class="small-text color-neutral">@(MonitorManager.Stats.DownloadKbps+"Kbps")</p>
+                </div>
+                <div class="flex-h">
+                    <p class="small-text">Conexões TCP ativas: </p>
+                    <p id="tcp-count-display" class="small-text color-neutral">@MonitorManager.Stats.TcpConnections</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@code
+{
+    private bool _defaultThemeApplied;
+    private double _lastDiskUsedPercent = 0d;
+
+    protected override async Task OnInitializedAsync()
+    {
+        MonitorManager.StatsChanged += OnStatsChanged;
+        await ApplyDefaultTheme();
+    }
+
+    private async void OnStatsChanged()
+    {
+        await InvokeAsync(OnStatsChangedAsync);
+    }
+
+    private async Task OnStatsChangedAsync()
+    {
+        await UpdateCharts();
+        if (Math.Abs(MonitorManager.Stats.DiskUsedPercent - _lastDiskUsedPercent) > 0.1)
+        {
+            await UpdateStorageChart();
+            _lastDiskUsedPercent = MonitorManager.Stats.DiskUsedPercent;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdateStorageChart()
+    {
+        await JsRuntime.InvokeVoidAsync(
+            "updateStorageChart",
+            MonitorManager.Stats.DiskUsedPercent,
+            ColorManager.CssVariableFromUsageLevel(MonitorManager.Stats.DiskUsedPercent)    
+                
+        );    
+    }
+
+    private async Task UpdateCharts()
+    {
+        await JsRuntime.InvokeVoidAsync(
+            "updateChart",
+            "cpu-load-chart-fill",
+            ColorManager.CssVariableFromUsageLevel(MonitorManager.Stats.CpuLoadPercent),
+                MonitorManager.Stats.CpuLoadPercent
+        );
+
+        await JsRuntime.InvokeVoidAsync(
+            "updateChart",
+            "ram-usage-chart-fill",
+            ColorManager.CssVariableFromUsageLevel(MonitorManager.Stats.RamUsedPercent),
+                MonitorManager.Stats.RamUsedPercent
+        );
+    }
+
+    public void Dispose()
+    {
+        MonitorManager.StatsChanged -= OnStatsChanged;
+    }
+
+    private async Task ChangeTheme()
+    {
+        AppSettings.IsDarkMode = !AppSettings.IsDarkMode;
+
+        if (AppSettings.IsDarkMode)
+        {
+            await JsRuntime.InvokeVoidAsync("setBodyClass", "dark");
+            await JsRuntime.InvokeVoidAsync("removeBodyClass", "light");
+        }
+        else
+        {
+            await JsRuntime.InvokeVoidAsync("setBodyClass", "light");
+            await JsRuntime.InvokeVoidAsync("removeBodyClass", "dark");
+        }
+        await UpdateStorageChart();
+    }
+    
+    private async Task ApplyDefaultTheme()
+    {
+        if (_defaultThemeApplied)
+            return;
+
+        _defaultThemeApplied = true;
+
+        string cssClass = AppSettings.IsDarkMode ? "dark" : "";
+
+        await JsRuntime.InvokeVoidAsync("setBodyClass", cssClass);
+    }
+}
