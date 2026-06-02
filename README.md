@@ -4,7 +4,7 @@
 
 Aplicação nativa pro Windows 11 que consiste em um mini dashboard de monitoramento de sistema. A aplicação foi inspirada em ferramentas como o Gerenciador de Tarefas do Windows e o Conky disponível para sistemas Unix-like. 
 
-O objetivo do app é exibir informações em tempo real sobre CPU, RAM, armazenamento e rede, com interface dinâmica e personalizável a qual permite ao usuário escolher entre diferentes temas de cores e fontes. 
+O objetivo do app é exibir informações em tempo real sobre CPU, RAM, armazenamento e rede atavés de uma interface dinâmica e personalizável a qual permite ao usuário escolher entre diferentes temas de cores e fontes. 
 
 A aplicação foi desenvolvida sobretudo com a linguagem C# utilizando os frameworks Blazor e WPF.
 
