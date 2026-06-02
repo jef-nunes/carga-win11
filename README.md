@@ -6,6 +6,8 @@ O objetivo do app é exibir informações em tempo real sobre CPU, RAM, armazena
 
 A aplicação foi desenvolvida sobretudo com a linguagem C# utilizando os frameworks Blazor e WPF.
 
+---
+
 ## 🚀 Recursos
 - Monitor de carga de CPU e RAM
 - Monitor de armazenamento no disco C:
@@ -25,5 +27,3 @@ A aplicação foi desenvolvida sobretudo com a linguagem C# utilizando os framew
 - HTML
 - CSS
 - JavaScript
-
----
