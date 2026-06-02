@@ -8,50 +8,7 @@
 </head>
 <body>
     <div id="app">Loading...</div>
-    <script>
-        window.getCssVar = (name) => {
-            return getComputedStyle(document.body)
-                .getPropertyValue(name)
-                .trim();
-        };
-    </script>
-    <script>
-        window.updateStorageChart = (fillPercent, fillColorVarName) => {
-            const el = document.getElementById('storage-pie-chart');
-            if (!el) return;
-
-            const bgColor = getCssVar("--color-background");
-            const fillColor = getCssVar(fillColorVarName);
-
-            const p = Math.max(0, Math.min(100, fillPercent));
-
-            el.style.background = `conic-gradient(
-        ${fillColor} 0% ${p}%,
-        ${bgColor} ${p}% 100%
-    )`;
-        };
-    </script>
-    <script>
-        window.updateChart = (chartFillDivId, fillColorVarName, fillPercent) => {
-            const maxWidth = 260;
-            const chartFill = document.getElementById(chartFillDivId);
-            if (!chartFill) return;
-            
-            chartFill.style.background = `${getCssVar(fillColorVarName)}`;
-            const fillWidth = fillPercent*maxWidth/100;
-            chartFill.style.width = `${fillWidth}px`;
-        }
-    </script>
-    <script>
-        window.setBodyClass = (className) => {
-            document.body.className = className;
-        };
-    </script>
-    <script>
-        window.removeBodyClass = (className) => {
-            document.body.classList.remove(className);
-        };
-    </script>
+    <script src="./js/script.js"></script>
     <script src="_framework/blazor.webview.js"></script>
 </body>
 </html>

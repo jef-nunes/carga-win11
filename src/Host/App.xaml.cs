@@ -26,9 +26,9 @@ public partial class App : Application
         
         var appSettings = Services.GetRequiredService<AppSettings>();
         
-        var systemColorTheme = Services.GetRequiredService<SystemColorTheme>();
-
-        appSettings.IsDarkMode = systemColorTheme.IsDarkMode();
+        appSettings.LoadSettings();
+        
+        //var systemColorTheme = Services.GetRequiredService<SystemColorTheme>();
         
         var systemSpecs = Services.GetRequiredService<SystemSpecs>();
         systemSpecs.Fetch();

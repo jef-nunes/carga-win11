@@ -2,6 +2,8 @@ using Microsoft.Win32;
 
 namespace MonitorWin11.Services;
 
+// Verificar se o tema atual do Windows 11 é claro ou escuro
+// Este serviço não é utilizado atualmente
 public class SystemColorTheme
 {
     public bool IsDarkMode()
