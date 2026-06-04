@@ -11,6 +11,8 @@ Aplicação nativa pro Windows 11 que consiste em um mini dashboard de monitoram
 O objetivo da aplicação é exibir informações em tempo real sobre CPU, RAM, armazenamento e rede, com interface dinâmica e personalizável a qual permite ao usuário escolher entre diferentes temas de cores e fontes. 
 
 A aplicação foi desenvolvida sobretudo com a linguagem C# utilizando os frameworks Blazor e WPF.
+<br>
+
 <img src="previa_01.png" width="400px" height="400px"><img src="previa_02.png" width="400px" height="400px">
 
 ### 🚀 Recursos
